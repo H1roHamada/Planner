@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.vscode/settings.json
+.idea/.gitignore
+.idea/modules.xml
+.idea/prettier.xml
+.idea/trello-frontend.iml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/codeStyles/Project.xml
