@@ -15,13 +15,11 @@ export function LogoutButton() {
 	});
 
 	return (
-		<div className='absolute top-1 right-1'>
-			<button
-				className='opacity-20 hover:opacity-100 transition-opacity duration-300'
-				onClick={() => mutate()}
-			>
-				<LogOut size={20} />
-			</button>
-		</div>
+		<button
+			className='opacity-20 hover:opacity-100 transition-opacity duration-300'
+			onClick={() => mutate()}
+		>
+			<LogOut size={20} />
+		</button>
 	);
 }

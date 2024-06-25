@@ -29,15 +29,7 @@ export default function RootLayout({
 	return (
 		<html lang='en'>
 			<body className={zen.className}>
-				<Providers>
-					{children}
-
-					{/* <Toaster
-						theme='dark'
-						position='top-right'
-						duration={1500}
-						/> */}
-				</Providers>
+				<Providers>{children}</Providers>
 			</body>
 		</html>
 	);

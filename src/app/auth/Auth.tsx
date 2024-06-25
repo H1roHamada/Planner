@@ -2,19 +2,16 @@
 
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
-import { App, Button, Card, Form, Input } from 'antd';
+import { Button, Card, Form, Input } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { DASHBOARD_PAGES } from '@/config/pages-url.config';
 
-import { errorCatch } from '@/api/error-catch';
-
 import { IAuthForm } from '@/shared/interfaces/auth.interface';
 import { authService } from '@/shared/services/auth.service';
 
 export function Auth() {
-	const { message } = App.useApp();
 	const key = 'updatable';
 
 	const [isLoginForm, setIsLoginForm] = useState(true);
@@ -24,33 +21,16 @@ export function Auth() {
 	const { mutate } = useMutation({
 		mutationKey: ['auth'],
 		mutationFn: (data: IAuthForm) => {
-			message.open({
-				key,
-				type: 'loading',
-				content: isLoginForm ? 'Вход...' : 'Регистрация...'
-			});
 			return authService.main(isLoginForm ? 'login ' : 'register', data);
 		},
 		onSuccess() {
-			message.open({
-				key,
-				type: 'success',
-				content: isLoginForm ? 'Успешный вход!' : 'Успешная регистрация!',
-				duration: 2
-			});
 			push(DASHBOARD_PAGES.HOME);
-		},
-		onError(error) {
-			message.open({
-				key,
-				type: 'error',
-				content: errorCatch(error),
-				duration: 2
-			});
 		}
 	});
 
 	const onFinish = (data: IAuthForm) => {
+		console.log(data);
+
 		mutate(data);
 	};
 
@@ -108,6 +88,7 @@ export function Auth() {
 								>
 									Вход
 								</Button>
+
 								<Button
 									htmlType='submit'
 									className='flex-1'
@@ -119,7 +100,7 @@ export function Auth() {
 						</Form.Item>
 					</Form>
 				</Card>
-			</div>{' '}
+			</div>
 		</>
 	);
 }
