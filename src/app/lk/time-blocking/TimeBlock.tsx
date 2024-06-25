@@ -8,30 +8,27 @@ import type { ITimeBlockResponse } from '@/shared/interfaces/time-block.interfac
 import type { TypeTimeBlockFormState } from '@/shared/types/time.type';
 
 export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
-	const { attributes, listeners, setNodeRef, style } = useTimeBlockSortable(
-		item.id
-	);
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		style: timeBlockingStyles
+	} = useTimeBlockSortable(item.id);
 	const { reset } = useFormContext<TypeTimeBlockFormState>();
 	const { deleteTimeBlock, isDeletePending } = useDeleteTimeBlock(item.id);
 
 	return (
 		<div
 			ref={setNodeRef}
-			style={style}
+			style={timeBlockingStyles}
 		>
 			<div
 				className={styles.block}
 				style={{
-					backgroundColor: item.color || 'lightgray',
-					height: `${item.duration / 2}px`
+					backgroundColor: item.color || 'lightgray'
 				}}
 			>
-				<div
-					className='flex items-center'
-					style={{
-						flex: 1
-					}}
-				>
+				<div className={styles.content}>
 					<button
 						{...attributes}
 						{...listeners}
@@ -39,33 +36,41 @@ export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
 					>
 						<GripVertical className={styles.grip} />
 					</button>
-					<div className={styles.content}>
+
+					<div className={styles.content_text}>
 						{item.name}{' '}
 						<i className='text-xs opacity-50'>({item.duration} min.)</i>
 					</div>
-				</div>
 
-				<div className={styles.actions}>
-					<button
-						onClick={() => {
-							reset({
-								id: item.id,
-								color: item.color,
-								duration: item.duration,
-								name: item.name,
-								order: item.order
-							});
-						}}
-						className='opacity-50 transition-opacity hover:opacity-100 mr-2'
-					>
-						<Edit size={16} />
-					</button>
-					<button
-						onClick={() => deleteTimeBlock()}
-						className='opacity-50 transition-opacity hover:opacity-100'
-					>
-						{isDeletePending ? <Loader size={16} /> : <Trash size={16} />}
-					</button>
+					<div className={styles.actions}>
+						<button
+							onClick={() => {
+								reset({
+									id: item.id,
+									color: item.color,
+									duration: item.duration,
+									name: item.name,
+									order: item.order
+								});
+							}}
+							className={styles.actions_edit}
+						>
+							<Edit size={16} />
+						</button>
+						<button
+							onClick={() => deleteTimeBlock()}
+							className={styles.actions_delete}
+						>
+							{isDeletePending ? (
+								<Loader
+									size={16}
+									className='animate-spin'
+								/>
+							) : (
+								<Trash size={16} />
+							)}
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

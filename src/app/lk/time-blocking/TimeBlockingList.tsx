@@ -4,7 +4,7 @@ import {
 	verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 
-import Loader from '@/components/ui/Loader';
+import { EmptyData } from '@/components/ui/empty/Empty';
 
 import { TimeBlock } from './TimeBlock';
 import styles from './TimeBlocking.module.scss';
@@ -13,43 +13,44 @@ import { useTimeBlockDnd } from './hooks/useTimeBlockDnd';
 import { useTimeBlocks } from './hooks/useTimeBlocks';
 
 export function TimeBlockingList() {
-	const { items, setItems, isLoading } = useTimeBlocks();
+	const { items, setItems } = useTimeBlocks();
 	const { handleDragEnd, sensors } = useTimeBlockDnd(items, setItems);
-
-	if (isLoading) return <Loader />;
 
 	const { hoursLeft } = calcHoursLeft(items);
 
+	if (!items?.length) {
+		return <EmptyData className={styles.list} />;
+	}
+
 	return (
-		<div>
+		<div className={styles.list}>
+			{
+				<div style={{ marginBottom: '10px' }}>
+					{hoursLeft > 0
+						? `Осталось на сон: ${hoursLeft} ч.`
+						: 'Без сна будет тяжко'}
+				</div>
+			}
+
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
 				onDragEnd={handleDragEnd}
 			>
-				<div className={styles.list}>
+				<div>
 					<SortableContext
 						items={items || []}
 						strategy={verticalListSortingStrategy}
 					>
-						{items?.length ? (
-							items?.map(item => (
-								<TimeBlock
-									key={item.id}
-									item={item}
-								/>
-							))
-						) : (
-							<div>Add the first time-block on the right form</div>
-						)}
+						{items?.map(item => (
+							<TimeBlock
+								key={item.id}
+								item={item}
+							/>
+						))}
 					</SortableContext>
 				</div>
 			</DndContext>
-			<div>
-				{hoursLeft > 0
-					? `${hoursLeft} hours out of 24 left for sleep`
-					: 'No hours left for sleep'}
-			</div>
 		</div>
 	);
 }

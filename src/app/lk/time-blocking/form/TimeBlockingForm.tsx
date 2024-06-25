@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/buttons/Button';
 import { Field } from '@/components/ui/fields/Field';
 import { SingleSelect } from '@/components/ui/task-edit/SingleSelect';
 
+import styles from '../TimeBlocking.module.scss';
 import { useCreateTimeBlock } from '../hooks/useCreateTimeBlock';
 import { useUpdateTimeBlock } from '../hooks/useUpdateTimeBlock';
 
@@ -28,7 +29,6 @@ export function TimeBlockingForm() {
 
 		reset({
 			color: COLORS[COLORS.length - 1],
-			duration: 0,
 			name: '',
 			id: undefined,
 			order: 1
@@ -38,7 +38,7 @@ export function TimeBlockingForm() {
 	return (
 		<form
 			onSubmit={handleSubmit(onSubmit)}
-			className='w-3/5'
+			className={styles.form}
 		>
 			<Field
 				{...register('name', {
