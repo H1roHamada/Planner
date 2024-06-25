@@ -7,25 +7,27 @@ import { useProfile } from '@/shared/hooks/useProfile';
 export function Statistics() {
 	const { data, isLoading } = useProfile();
 
-	return isLoading ? (
-		<Loader />
-	) : (
+	if (isLoading) {
+		return <Loader />;
+	}
+
+	if (!data?.statistics.length) {
+		return <div>Нет данных</div>;
+	}
+
+	return (
 		<div className='grid grid-cols-4 gap-12 mt-7'>
-			{data?.statistics.length ? (
-				data.statistics.map(stat => {
-					return (
-						<div
-							className='bg-border/5 rounded p-layout text-center hover:-translate-y-3 transition-transform duration-500'
-							key={stat.label}
-						>
-							<div className='text-xl'>{stat.label}</div>
-							<div className='text-3xl font-semibold'>{stat.value}</div>
-						</div>
-					);
-				})
-			) : (
-				<div>Статистика отсутствует</div>
-			)}
+			{data.statistics.map(stat => {
+				return (
+					<div
+						className='bg-border/5 rounded p-layout text-center hover:-translate-y-3 transition-transform duration-500'
+						key={stat.label}
+					>
+						<div className='font-semibold'>{stat.label}</div>
+						<div className='text-3xl'>{stat.value}</div>
+					</div>
+				);
+			})}
 		</div>
 	);
 }
