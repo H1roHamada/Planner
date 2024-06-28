@@ -1,3 +1,22 @@
+## Используемые технологии
+
+### Основное:
+
+- React v18
+- NextJS v14
+- TanStack Query v5
+
+### Дополнительно:
+
+- React Hook Form
+- DnD-kit
+- DayJS
+
+### UI:
+
+- AntD
+- Tailwind
+
 ## Getting Started
 
 ```bash
