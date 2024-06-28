@@ -17,6 +17,12 @@
 - AntD
 - Tailwind
 
+### Backend:
+
+- NestJS v10
+- Prisma v5
+- PostgreSQL
+
 ## Getting Started
 
 ```bash
