@@ -2,6 +2,7 @@ import { Edit, GripVertical, Loader, Trash } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 
 import styles from './TimeBlocking.module.scss';
+import { COLORS } from './form/colors.data';
 import { useDeleteTimeBlock } from './hooks/useDeleteTimeBlock';
 import { useTimeBlockSortable } from './hooks/useTimeBlockSortable';
 import type { ITimeBlockResponse } from '@/shared/interfaces/time-block.interface';
@@ -14,8 +15,31 @@ export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
 		setNodeRef,
 		style: timeBlockingStyles
 	} = useTimeBlockSortable(item.id);
+
 	const { reset } = useFormContext<TypeTimeBlockFormState>();
 	const { deleteTimeBlock, isDeletePending } = useDeleteTimeBlock(item.id);
+
+	const convertMinutesToTime = (minutes: number): string => {
+		const h = Math.floor(minutes / 60);
+		const m = Math.floor(minutes % 60);
+
+		const time = {
+			h: h < 9 ? `0${h}` : h.toString(),
+			m: m < 9 ? `0${m}` : m.toString()
+		};
+
+		return `${time.h}:${time.m}`;
+	};
+
+	const handleDelete = () => {
+		deleteTimeBlock();
+		reset({
+			name: '',
+			color: COLORS.DEFAULT,
+			id: undefined,
+			order: 1
+		});
+	};
 
 	return (
 		<div
@@ -38,8 +62,11 @@ export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
 					</button>
 
 					<div className={styles.content_text}>
-						{item.name}{' '}
-						<i className='text-xs opacity-50'>({item.duration} min.)</i>
+						<i className='text-xs opacity-50 mb-1'>
+							Затрачено времени: {convertMinutesToTime(item.duration)}
+						</i>
+						<br />
+						{item.name}
 					</div>
 
 					<div className={styles.actions}>
@@ -58,7 +85,7 @@ export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
 							<Edit size={16} />
 						</button>
 						<button
-							onClick={() => deleteTimeBlock()}
+							onClick={handleDelete}
 							className={styles.actions_delete}
 						>
 							{isDeletePending ? (

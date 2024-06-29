@@ -6,7 +6,12 @@ import type { TypeTimeBlockFormState } from '@/shared/types/time.type';
 export function useCreateTimeBlock() {
 	const queryClient = useQueryClient();
 
-	const { mutate: createTimeBlock, isPending } = useMutation({
+	const {
+		mutate: createTimeBlock,
+		isPending: isCreateTimeBlockPending,
+		isSuccess: isCreateTimeBlockSuccess,
+		isError: isCreateTimeBlockError
+	} = useMutation({
 		mutationKey: ['create time-block'],
 		mutationFn: (data: TypeTimeBlockFormState) =>
 			timeBlockService.createTimeBlock(data),
@@ -19,6 +24,8 @@ export function useCreateTimeBlock() {
 
 	return {
 		createTimeBlock,
-		isPending
+		isCreateTimeBlockPending,
+		isCreateTimeBlockSuccess,
+		isCreateTimeBlockError
 	};
 }

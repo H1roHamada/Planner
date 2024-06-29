@@ -25,11 +25,11 @@ export function TimeBlockingList() {
 	return (
 		<div className={styles.list}>
 			{
-				<div style={{ marginBottom: '10px' }}>
+				<p style={{ marginBottom: '10px' }}>
 					{hoursLeft > 0
 						? `Осталось на сон: ${hoursLeft} ч.`
 						: 'Без сна будет тяжко'}
-				</div>
+				</p>
 			}
 
 			<DndContext

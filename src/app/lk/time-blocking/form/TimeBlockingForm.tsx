@@ -1,8 +1,7 @@
+import { Button, ColorPicker, Form, Input, TimePicker, Typography } from 'antd';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form';
-
-import { Button } from '@/components/ui/buttons/Button';
-import { Field } from '@/components/ui/fields/Field';
-import { SingleSelect } from '@/components/ui/task-edit/SingleSelect';
 
 import styles from '../TimeBlocking.module.scss';
 import { useCreateTimeBlock } from '../hooks/useCreateTimeBlock';
@@ -11,83 +10,186 @@ import { useUpdateTimeBlock } from '../hooks/useUpdateTimeBlock';
 import { COLORS } from './colors.data';
 import type { TypeTimeBlockFormState } from '@/shared/types/time.type';
 
+interface ITime {
+	h: number;
+	m: number;
+}
+
 export function TimeBlockingForm() {
-	const { register, control, watch, reset, handleSubmit, getValues } =
+	const { control, watch, reset, handleSubmit, getValues } =
 		useFormContext<TypeTimeBlockFormState>();
 
 	const existsId = watch('id');
 
-	const { updateTimeBlock } = useUpdateTimeBlock(existsId);
-	const { createTimeBlock, isPending } = useCreateTimeBlock();
+	const { updateTimeBlock, isUpdateTimeBlockSuccess } =
+		useUpdateTimeBlock(existsId);
 
-	const onSubmit: SubmitHandler<TypeTimeBlockFormState> = data => {
-		const { color, id, ...rest } = data;
-		const dto = { ...rest, color: color || undefined };
+	const {
+		createTimeBlock,
+		isCreateTimeBlockPending,
+		isCreateTimeBlockSuccess
+	} = useCreateTimeBlock();
 
-		// Если есть id, то обновить, иначе - создать
-		id ? updateTimeBlock({ id, data: dto }) : createTimeBlock(dto);
+	const [time, setTime] = useState<ITime>({ h: 0, m: 0 });
+	const [color, setColor] = useState<string>(COLORS.DEFAULT);
 
+	// Установить значение при редактировании для "Время"
+	useEffect(() => {
+		const minutes = getValues('duration');
+
+		setTime({
+			h: minutes ? Math.floor(minutes / 60) : 0,
+			m: minutes ? Math.floor(minutes % 60) : 0
+		});
+	}, [watch('duration')]);
+
+	// Установить значение при редактировании для "Цвет"
+	useEffect(() => {
+		const color = getValues('color');
+
+		if (color) {
+			setColor(color);
+		}
+	}, [watch('color')]);
+
+	// Отслеживание успешного сохранения/добавления
+	useEffect(() => {
+		clearForm();
+	}, [isCreateTimeBlockSuccess, isUpdateTimeBlockSuccess]);
+
+	/** Конвертация времени формата hh:mm в минуты */
+	const convertTimeToMinutes = (): number => {
+		if (!time) return 0;
+
+		return Number(time.h) * 60 + Number(time.m);
+	};
+
+	/** Очистка формы */
+	const clearForm = () => {
 		reset({
-			color: COLORS[COLORS.length - 1],
 			name: '',
+			color: COLORS.DEFAULT,
 			id: undefined,
 			order: 1
 		});
+
+		setTime({ h: 0, m: 0 });
+	};
+
+	/** Сохранение */
+	const onSubmit: SubmitHandler<TypeTimeBlockFormState> = data => {
+		const { id, ...rest } = data;
+		const dto = {
+			...rest,
+			duration: convertTimeToMinutes(),
+			color: color || undefined
+		};
+
+		// Если есть id, то обновить, иначе - создать
+		id ? updateTimeBlock({ id, data: dto }) : createTimeBlock(dto);
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
+		<Form
 			className={styles.form}
+			onFinish={handleSubmit(onSubmit)}
 		>
-			<Field
-				{...register('name', {
-					required: true
-				})}
-				id='name'
-				label='Enter name:'
-				placeholder='Enter name:'
-				extra='mb-4'
-			/>
-
-			<Field
-				{...register('duration', {
-					required: true,
-					valueAsNumber: true
-				})}
-				id='duration'
-				label='Enter duration (min.):'
-				placeholder='Enter duration (min.):'
-				isNumber
-				extra='mb-4'
-			/>
-
-			<div>
-				<span className='inline-block mb-1.5'>Color:</span>
+			{/* Описание */}
+			<Form.Item<TypeTimeBlockFormState>>
 				<Controller
+					name='name'
+					defaultValue=''
 					control={control}
-					name='color'
-					render={({ field: { value, onChange } }) => (
-						<SingleSelect
-							data={COLORS.map(item => ({
-								value: item,
-								label: item
-							}))}
-							onChange={onChange}
-							value={value || COLORS[COLORS.length - 1]}
-							isColorSelect
-						/>
+					rules={{ required: true }}
+					render={({ field }) => (
+						<div>
+							<Typography.Title level={5}>Описание:</Typography.Title>
+							<Input.TextArea
+								{...field}
+								autoSize={{
+									minRows: 1,
+									maxRows: 12
+								}}
+								placeholder='Введите описание:'
+							/>
+						</div>
 					)}
 				/>
-			</div>
+			</Form.Item>
 
-			<Button
-				type='submit'
-				disabled={isPending}
-				className='mt-6'
+			{/* Время */}
+			<Form.Item<TypeTimeBlockFormState>>
+				<Controller
+					name='duration'
+					control={control}
+					render={() => (
+						<div>
+							<Typography.Title level={5}>Время:</Typography.Title>
+
+							<TimePicker
+								showNow={false}
+								format={'HH:mm'}
+								value={dayjs(`${time?.h}:${time?.m}`, 'HH:mm')}
+								onChange={time => {
+									setTime({
+										h: time?.hour() ?? 0,
+										m: time?.minute() ?? 0
+									});
+								}}
+							/>
+						</div>
+					)}
+				/>
+			</Form.Item>
+
+			{/* Выбор цвета */}
+			<Form.Item<TypeTimeBlockFormState>>
+				<Controller
+					name='color'
+					control={control}
+					render={() => (
+						<div>
+							<Typography.Title level={5}>Цвет:</Typography.Title>
+
+							<ColorPicker
+								showText
+								value={color}
+								onChange={color => setColor(`#${color.toHex()}`)}
+								arrow={true}
+							></ColorPicker>
+						</div>
+					)}
+				/>
+			</Form.Item>
+
+			{/* Кнопки */}
+			<div
+				style={{
+					display: 'flex',
+					gap: '10px'
+				}}
 			>
-				{existsId ? 'Update' : 'Create'}
-			</Button>
-		</form>
+				<Button
+					type='primary'
+					htmlType='submit'
+					disabled={isCreateTimeBlockPending}
+					className='mt-6'
+				>
+					{existsId ? 'Сохранить' : 'Создать'}
+				</Button>
+
+				{existsId && (
+					<Button
+						type='primary'
+						danger={true}
+						disabled={isCreateTimeBlockPending}
+						className='mt-6'
+						onClick={clearForm}
+					>
+						Отмена
+					</Button>
+				)}
+			</div>
+		</Form>
 	);
 }

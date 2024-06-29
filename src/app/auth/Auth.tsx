@@ -29,8 +29,6 @@ export function Auth() {
 	});
 
 	const onFinish = (data: IAuthForm) => {
-		console.log(data);
-
 		mutate(data);
 	};
 
