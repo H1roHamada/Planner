@@ -11,7 +11,7 @@ import { useTimeBlocks } from './hooks/useTimeBlocks';
 import type { TypeTimeBlockFormState } from '@/shared/types/time.type';
 
 export function TimeBlocking() {
-	const methods = useForm<TypeTimeBlockFormState>();
+	const formMethods = useForm<TypeTimeBlockFormState>();
 
 	const { isLoading } = useTimeBlocks();
 
@@ -20,7 +20,7 @@ export function TimeBlocking() {
 	}
 
 	return (
-		<FormProvider {...methods}>
+		<FormProvider {...formMethods}>
 			<div className={styles.wrapper}>
 				<TimeBlockingList />
 				<TimeBlockingForm />

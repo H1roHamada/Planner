@@ -24,8 +24,8 @@ export function TimeBlock({ item }: { item: ITimeBlockResponse }) {
 		const m = Math.floor(minutes % 60);
 
 		const time = {
-			h: h < 9 ? `0${h}` : h.toString(),
-			m: m < 9 ? `0${m}` : m.toString()
+			h: h < 10 ? `0${h}` : h.toString(),
+			m: m < 10 ? `0${m}` : m.toString()
 		};
 
 		return `${time.h}:${time.m}`;

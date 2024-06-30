@@ -1,5 +1,14 @@
-import { Button, ColorPicker, Form, Input, TimePicker, Typography } from 'antd';
+import {
+	Button,
+	ColorPicker,
+	Form,
+	Input,
+	Space,
+	TimePicker,
+	Typography
+} from 'antd';
 import dayjs from 'dayjs';
+import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useFormContext } from 'react-hook-form';
 
@@ -16,10 +25,11 @@ interface ITime {
 }
 
 export function TimeBlockingForm() {
-	const { control, watch, reset, handleSubmit, getValues } =
+	const { control, watch, reset, handleSubmit, getValues, setValue } =
 		useFormContext<TypeTimeBlockFormState>();
 
 	const existsId = watch('id');
+	const color = watch('color', COLORS.DEFAULT);
 
 	const { updateTimeBlock, isUpdateTimeBlockSuccess } =
 		useUpdateTimeBlock(existsId);
@@ -31,38 +41,6 @@ export function TimeBlockingForm() {
 	} = useCreateTimeBlock();
 
 	const [time, setTime] = useState<ITime>({ h: 0, m: 0 });
-	const [color, setColor] = useState<string>(COLORS.DEFAULT);
-
-	// Установить значение при редактировании для "Время"
-	useEffect(() => {
-		const minutes = getValues('duration');
-
-		setTime({
-			h: minutes ? Math.floor(minutes / 60) : 0,
-			m: minutes ? Math.floor(minutes % 60) : 0
-		});
-	}, [watch('duration')]);
-
-	// Установить значение при редактировании для "Цвет"
-	useEffect(() => {
-		const color = getValues('color');
-
-		if (color) {
-			setColor(color);
-		}
-	}, [watch('color')]);
-
-	// Отслеживание успешного сохранения/добавления
-	useEffect(() => {
-		clearForm();
-	}, [isCreateTimeBlockSuccess, isUpdateTimeBlockSuccess]);
-
-	/** Конвертация времени формата hh:mm в минуты */
-	const convertTimeToMinutes = (): number => {
-		if (!time) return 0;
-
-		return Number(time.h) * 60 + Number(time.m);
-	};
 
 	/** Очистка формы */
 	const clearForm = () => {
@@ -76,6 +54,13 @@ export function TimeBlockingForm() {
 		setTime({ h: 0, m: 0 });
 	};
 
+	/** Конвертация времени формата hh:mm в минуты */
+	const convertTimeToMinutes = (): number => {
+		if (!time) return 0;
+
+		return Number(time.h) * 60 + Number(time.m);
+	};
+
 	/** Сохранение */
 	const onSubmit: SubmitHandler<TypeTimeBlockFormState> = data => {
 		const { id, ...rest } = data;
@@ -85,9 +70,30 @@ export function TimeBlockingForm() {
 			color: color || undefined
 		};
 
-		// Если есть id, то обновить, иначе - создать
 		id ? updateTimeBlock({ id, data: dto }) : createTimeBlock(dto);
 	};
+
+	const setRandomColor = () => {
+		const randomColor = `#${((Math.random() * 0xfff) << 0).toString(16)}`;
+		setValue('color', randomColor);
+	};
+
+	// TODO: переделать логику
+	// Установить значение при редактировании для "Время"
+	useEffect(() => {
+		const minutes = getValues('duration');
+
+		setTime({
+			h: minutes ? Math.floor(minutes / 60) : 0,
+			m: minutes ? Math.floor(minutes % 60) : 0
+		});
+	}, [watch('duration')]);
+
+	// TODO: переделать логику
+	// Чистка формы после успешного сохранения данных
+	useEffect(() => {
+		clearForm();
+	}, [isCreateTimeBlockSuccess, isUpdateTimeBlockSuccess]);
 
 	return (
 		<Form
@@ -150,13 +156,20 @@ export function TimeBlockingForm() {
 					render={() => (
 						<div>
 							<Typography.Title level={5}>Цвет:</Typography.Title>
+							<Space>
+								<Button
+									icon={<RefreshCw />}
+									onClick={setRandomColor}
+								/>
 
-							<ColorPicker
-								showText
-								value={color}
-								onChange={color => setColor(`#${color.toHex()}`)}
-								arrow={true}
-							></ColorPicker>
+								<ColorPicker
+									arrow={true}
+									showText
+									defaultFormat='rgb'
+									value={color}
+									onChange={value => setValue('color', `#${value.toHex()}`)}
+								></ColorPicker>
+							</Space>
 						</div>
 					)}
 				/>
@@ -172,8 +185,8 @@ export function TimeBlockingForm() {
 				<Button
 					type='primary'
 					htmlType='submit'
-					disabled={isCreateTimeBlockPending}
 					className='mt-6'
+					loading={isCreateTimeBlockPending}
 				>
 					{existsId ? 'Сохранить' : 'Создать'}
 				</Button>
