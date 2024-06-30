@@ -23,6 +23,9 @@
 - Prisma v5
 - PostgreSQL
 
+## Design
+[Figma](https://www.figma.com/design/bqf4vwer0ZEHVwexOPisiM/Planner?node-id=0-1&t=Gn2HDPtln4jMb90J-1)
+
 ## Getting Started
 
 ```bash
